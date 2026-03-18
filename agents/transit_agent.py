@@ -5,7 +5,12 @@ from agents.coordinator import THRESHOLDS
 class PublicTransitAgent(Agent):  # Public transit agent
     def detect_delay(self, delay_minutes, log):
         log.append(f"[Transit] delay = {delay_minutes} minutes")
-        return delay_minutes > THRESHOLDS["TRANSIT_DELAY"]
+        if delay_minutes > THRESHOLDS["TRANSIT_DELAY"]:
+            log.append("[Transit] ⚠️ Transit delay detected! Requesting coordination...")
+            return True
+        else:
+            log.append("[Transit] ✓ Transit schedule on track")
+            return False
 
     def request_coordination(self, coordinator, delay_minutes, log):
         priority = min(10, int(delay_minutes / 10))

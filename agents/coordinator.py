@@ -52,14 +52,27 @@ class ResourceCoordinationAgent(Agent):
         if deps:
             log.append(f"[Coordinator] Checking dependencies: {deps}")
 
-        # Example logic
-        if request.request_type == "TRANSIT_DELAY":
-            log.append("[Coordinator] Coordinating with Traffic + Energy")
-            log.append("[Traffic] Reducing congestion for train priority")
-            log.append("[Energy] Allocating power to rail system")
+        # Actual coordination logic
+        if request.request_type == "TRAFFIC_CONGESTION":
+            log.append("[Coordinator] ⚠️ Traffic congestion request received")
+            log.append("[Coordinator] → Requesting Energy Agent support for traffic lights")
+            log.append("[Coordinator] → Increasing power allocation to traffic management system")
+
+        if request.request_type == "PEAK_LOAD":
+            log.append("[Coordinator] ⚠️ Energy peak load request received")
+            log.append("[Coordinator] → Coordinating demand response")
+            log.append("[Coordinator] → Shifting non-critical loads to off-peak hours")
 
         if request.request_type == "HIGH_POLLUTION":
-            log.append("[Coordinator] Requesting Traffic Agent to reduce flow")
+            log.append("[Coordinator] ⚠️ High pollution request received")
+            log.append("[Coordinator] → Requesting Traffic Agent to reduce vehicular flow")
+            log.append("[Coordinator] → Reducing congestion will decrease emissions")
+
+        if request.request_type == "TRANSIT_DELAY":
+            log.append("[Coordinator] ⚠️ Transit delay request received")
+            log.append("[Coordinator] → Coordinating with Traffic Agent for signal priority")
+            log.append("[Coordinator] → Coordinating with Energy Agent for rail power allocation")
+            log.append("[Coordinator] → Giving transit priority over regular traffic")
 
         if request.priority_level >= 6:
             request.decision_status = "APPROVED"

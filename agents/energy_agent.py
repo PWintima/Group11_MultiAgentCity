@@ -5,7 +5,12 @@ from agents.coordinator import THRESHOLDS
 class EnergyGridAgent(Agent):  # Energy grid agent
     def detect_peak_load(self, load_value, log):
         log.append(f"[Energy] load_value = {load_value}")
-        return load_value > THRESHOLDS["PEAK_LOAD"]
+        if load_value > THRESHOLDS["PEAK_LOAD"]:
+            log.append("[Energy] ⚠️ Peak load detected! Requesting coordination...")
+            return True
+        else:
+            log.append("[Energy] ✓ Load within normal range")
+            return False
 
     def request_coordination(self, coordinator, load_value, log):
         priority = min(10, int(load_value / 10))

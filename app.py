@@ -74,7 +74,7 @@ with col4:
     delay_minutes = st.slider(
         "Delay minutes",
         0, 30,
-        delay_minutes,
+        max(delay_minutes, 12),  # Force to at least 12 for demo purposes
         1,
         disabled=(mode == "Dataset")
     )

@@ -6,7 +6,12 @@ from agents.coordinator import THRESHOLDS
 class TrafficSignalAgent(Agent):  # traffic signal agent
     def detect_congestion(self, vehicle_count, log):
         log.append(f"[Traffic] vehicle_count = {vehicle_count}")
-        return vehicle_count > THRESHOLDS["TRAFFIC_CONGESTION"]
+        if vehicle_count > THRESHOLDS["TRAFFIC_CONGESTION"]:
+            log.append("[Traffic] ⚠️ Congestion detected! Requesting coordination...")
+            return True
+        else:
+            log.append("[Traffic] ✓ No congestion detected")
+            return False
 
     def request_coordination(self, coordinator, vehicle_count, log):
         priority = min(10, int(vehicle_count / 10))
