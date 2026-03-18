@@ -47,35 +47,21 @@ st.divider()
 
 if run:
     log = []
+
     coordinator = ResourceCoordinationAgent("Coordinator")
     traffic = TrafficSignalAgent("TrafficAgent")
     energy = EnergyGridAgent("EnergyAgent")
     env = EnvironmentalMonitoringAgent("EnvironmentAgent")
     transit = PublicTransitAgent("TransitAgent")
 
-    log.append("===== SIMULATION START =====")
+    inputs = {
+        "traffic": vehicle_count,
+        "energy": load_value,
+        "env": aqi,
+        "transit": delay_minutes
+    }
 
-    if traffic.detect_congestion(vehicle_count, log):
-        traffic.request_coordination(coordinator, vehicle_count, log)
-    else:
-        log.append("[Traffic] No action (below threshold)")
-
-    if energy.detect_peak_load(load_value, log):
-        energy.request_coordination(coordinator, load_value, log)
-    else:
-        log.append("[Energy] No action (below threshold)")
-
-    if env.detect_pollution(aqi, log):
-        env.request_coordination(coordinator, aqi, log)
-    else:
-        log.append("[Environment] No action (below threshold)")
-
-    if transit.detect_delay(delay_minutes, log):
-        transit.request_coordination(coordinator, delay_minutes, log)
-    else:
-        log.append("[Transit] No action (below threshold)")
-
-    log.append("===== SIMULATION END =====")
+    run_simulation(traffic, energy, env, transit, coordinator, inputs, log)
 
     st.subheader("System Log")
     st.code("\n".join(log), language="text")
