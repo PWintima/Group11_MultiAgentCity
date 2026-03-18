@@ -34,6 +34,7 @@ class ResourceCoordinationAgent(Agent):
 
         # push into priority queue (higher priority first)
         heapq.heappush(self.request_queue, (-request.priority_level, request))
+        log.append(f"[Coordinator] Queue size: {len(self.request_queue)}")
 
         self.process_queue(log)
 
@@ -49,38 +50,44 @@ class ResourceCoordinationAgent(Agent):
     def evaluate_conflict(self, request, log):
         deps = DEPENDENCIES.get(request.request_type, [])
 
+        # ✅ Dependency logging
         if deps:
             log.append(f"[Coordinator] Checking dependencies: {deps}")
+            for dep in deps:
+                log.append(f"[Coordinator] → {dep} available")
 
-        # Actual coordination logic
+        # ✅ ALWAYS run logic (outside deps block)
         if request.request_type == "TRAFFIC_CONGESTION":
-            log.append("[Coordinator] ⚠️ Traffic congestion request received")
-            log.append("[Coordinator] → Requesting Energy Agent support for traffic lights")
-            log.append("[Coordinator] → Increasing power allocation to traffic management system")
+            log.append("[Coordinator] ⚠️ Traffic congestion detected")
+            log.append("[Coordinator] → Increasing signal duration")
 
-        if request.request_type == "PEAK_LOAD":
-            log.append("[Coordinator] ⚠️ Energy peak load request received")
-            log.append("[Coordinator] → Coordinating demand response")
-            log.append("[Coordinator] → Shifting non-critical loads to off-peak hours")
+        elif request.request_type == "PEAK_LOAD":
+            log.append("[Coordinator] ⚠️ Energy peak load detected")
+            log.append("[Coordinator] → Load balancing initiated")
 
-        if request.request_type == "HIGH_POLLUTION":
-            log.append("[Coordinator] ⚠️ High pollution request received")
-            log.append("[Coordinator] → Requesting Traffic Agent to reduce vehicular flow")
-            log.append("[Coordinator] → Reducing congestion will decrease emissions")
+        elif request.request_type == "HIGH_POLLUTION":
+            log.append("[Coordinator] ⚠️ High pollution detected")
+            log.append("[Coordinator] → Requesting Traffic Agent to reduce flow")
 
-        if request.request_type == "TRANSIT_DELAY":
-            log.append("[Coordinator] ⚠️ Transit delay request received")
-            log.append("[Coordinator] → Coordinating with Traffic Agent for signal priority")
-            log.append("[Coordinator] → Coordinating with Energy Agent for rail power allocation")
-            log.append("[Coordinator] → Giving transit priority over regular traffic")
+        elif request.request_type == "TRANSIT_DELAY":
+            log.append("[Coordinator] ⚠️ Transit delay detected")
+            log.append("[Coordinator] → Coordinating Traffic + Energy")
+            log.append("[Traffic] Reducing congestion for train priority")
+            log.append("[Energy] Allocating power to rail system")
 
-        if request.priority_level >= 6:
+        # ✅ Decision logic (always runs)
+        threshold = PRIORITY_LEVELS.get(request.request_type, 6)
+
+        if request.priority_level >= threshold:
             request.decision_status = "APPROVED"
         else:
             request.decision_status = "DENIED"
 
+        log.append(f"[Coordinator] Decision: {request.decision_status}")
+
         return request.decision_status
 
+    # ✅ MUST BE OUTSIDE (same level as other methods)
     def send_decision(self, target_agent, decision, log):
-        log.append(f"[Coordinator] Decision: {decision}")
+        log.append(f"[Coordinator] Sending decision → {decision}")
         target_agent.receive_message(decision, log)

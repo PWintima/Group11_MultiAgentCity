@@ -1,28 +1,35 @@
 import pandas as pd
 import random
 
-# Load datasets once
-traffic_df = pd.read_csv("Automatic_Traffic_Recorder_ATR_Stations.csv")
-energy_df = pd.read_csv("US Electric Grid new.csv")
-env_df = pd.read_csv("Air_Quality_Data.csv")
-transit_df = pd.read_csv("Regularities_by_liaisons_Trains_France.csv")
+traffic_df = pd.read_csv("data/Automatic_Traffic_Recorder_ATR_Stations.csv")
+energy_df = pd.read_csv("data/US Electric Grid new.csv")
+env_df = pd.read_csv("data/Air_Quality_Data.csv")
+transit_df = pd.read_csv("data/Regularities_by_liaisons_Trains_France.csv")
+
+
+def get_numeric_value(df):
+    numeric_cols = df.select_dtypes(include=['number']).columns
+
+    if len(numeric_cols) == 0:
+        return 0  # fallback
+
+    col = random.choice(numeric_cols)
+    value = df[col].dropna().sample(1).values[0]
+
+    return min(max(int(value), 0), 120)
+
+def normalize(value, min_val, max_val):
+    return max(min(int(value), max_val), min_val)
 
 
 def get_traffic_value():
-    row = traffic_df.sample(1)
-    return int(row.iloc[0][1])  # adjust column index if needed
-
+    return normalize(get_numeric_value(traffic_df), 0, 120)
 
 def get_energy_value():
-    row = energy_df.sample(1)
-    return int(row.iloc[0][1])
-
+    return normalize(get_numeric_value(energy_df), 0, 120)
 
 def get_env_value():
-    row = env_df.sample(1)
-    return int(row.iloc[0][1])
-
+    return normalize(get_numeric_value(env_df), 0, 200)
 
 def get_transit_delay():
-    row = transit_df.sample(1)
-    return int(row.iloc[0][1])
+    return normalize(get_numeric_value(transit_df), 0, 30)

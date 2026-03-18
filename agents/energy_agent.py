@@ -6,7 +6,7 @@ class EnergyGridAgent(Agent):  # Energy grid agent
     def detect_peak_load(self, load_value, log):
         log.append(f"[Energy] load_value = {load_value}")
         if load_value > THRESHOLDS["PEAK_LOAD"]:
-            log.append("[Energy] ⚠️ Peak load detected! Requesting coordination...")
+            log.append("[Energy] ⚠️ Peak load detected! Requesting load balancing")
             return True
         else:
             log.append("[Energy] ✓ Load within normal range")
@@ -20,4 +20,5 @@ class EnergyGridAgent(Agent):  # Energy grid agent
     def receive_message(self, decision, log):
         log.append(f"[Energy] Decision received: {decision}")
         if decision == "APPROVED":
+            log.append("[Traffic] Applying coordinator-approved adjustment")
             log.append("[Energy] Action: Applying load balancing")

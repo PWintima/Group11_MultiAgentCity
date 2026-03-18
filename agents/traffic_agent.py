@@ -7,7 +7,7 @@ class TrafficSignalAgent(Agent):  # traffic signal agent
     def detect_congestion(self, vehicle_count, log):
         log.append(f"[Traffic] vehicle_count = {vehicle_count}")
         if vehicle_count > THRESHOLDS["TRAFFIC_CONGESTION"]:
-            log.append("[Traffic] ⚠️ Congestion detected! Requesting coordination...")
+            log.append("[Traffic] ⚠️ Congestion detected! Requesting signal timing increase")
             return True
         else:
             log.append("[Traffic] ✓ No congestion detected")
@@ -21,4 +21,6 @@ class TrafficSignalAgent(Agent):  # traffic signal agent
     def receive_message(self, decision, log):
         log.append(f"[Traffic] Decision received: {decision}")
         if decision == "APPROVED":
-            log.append("[Traffic] Timer adjusted from 1 min → 3 min")
+            log.append("[Traffic] Applying coordinator-approved adjustment")
+            log.append("[Traffic] Timer adjusted: Green light extended by 60 seconds")
+            log.append("[Traffic] ✓ System stable — no congestion")

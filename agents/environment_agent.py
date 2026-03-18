@@ -6,7 +6,7 @@ class EnvironmentalMonitoringAgent(Agent):  # Environmental monitoring agent
     def detect_pollution(self, aqi, log):
         log.append(f"[Environment] AQI = {aqi}")
         if aqi > THRESHOLDS["HIGH_POLLUTION"]:
-            log.append("[Environment] ⚠️ High pollution detected! Requesting coordination...")
+            log.append("[Environment] ⚠️ High pollution detected! Requesting traffic reduction")
             return True
         else:
             log.append("[Environment] ✓ Air quality is acceptable")
@@ -20,4 +20,5 @@ class EnvironmentalMonitoringAgent(Agent):  # Environmental monitoring agent
     def receive_message(self, decision, log):
         log.append(f"[Environment] Decision received: {decision}")
         if decision == "APPROVED":
+            log.append("[Traffic] Applying coordinator-approved adjustment")
             log.append("[Environment] Action: Triggering environmental alert")
