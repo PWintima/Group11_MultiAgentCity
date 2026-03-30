@@ -37,7 +37,7 @@ const generateSteadyData = (points: number, min: number, max: number) => {
 // ---------------- APP ----------------
 function App() {
 
-  // ✅ STATE
+  // 🔥 CORE STATE
   const [traffic, setTraffic] = useState(65);
   const [energy, setEnergy] = useState(90);
   const [env, setEnv] = useState(120);
@@ -45,19 +45,20 @@ function App() {
 
   const [logs, setLogs] = useState<any[]>([]);
   const [queue, setQueue] = useState<any[]>([]);
+  const [loading, setLoading] = useState(false);
 
-  // ✅ GRAPH DATA
+  // 📊 GRAPH DATA
   const [trafficData, setTrafficData] = useState(() => generateVolatileData(30, 50, 80));
   const [energyData, setEnergyData] = useState(() => generateTrendingUpData(30, 40, 75));
   const [environmentData, setEnvironmentData] = useState(() => generateTrendingUpData(30, 60, 90));
   const [transitData, setTransitData] = useState(() => generateSteadyData(30, 10, 30));
 
-  // 🔄 LIVE GRAPH
+  // 🔄 LIVE GRAPH LOOP
   useEffect(() => {
     const interval = setInterval(() => {
 
       setTrafficData(prev => {
-        const newValue = Math.floor(50 + Math.random() * 30 + Math.sin(Date.now() / 1000) * 15);
+        const newValue = Math.floor(50 + Math.random() * 30);
         return [...prev.slice(1), { value: newValue }];
       });
 
@@ -83,12 +84,30 @@ function App() {
     return () => clearInterval(interval);
   }, []);
 
-  // 🚀 RUN SIMULATION
+  // 🚀 RUN SIMULATION (FIXED)
   const handleRun = async () => {
-    const result = await runSimulation({ traffic, energy, env, transit });
+    try {
+      setLoading(true);
 
-    setLogs(result.logs || []);
-    setQueue(result.queue || []);
+      console.log("🚀 Running simulation...");
+
+      const result = await runSimulation({
+        traffic,
+        energy,
+        env,
+        transit
+      });
+
+      console.log("✅ BACKEND RESPONSE:", result);
+
+      setLogs(result.logs || []);
+      setQueue(result.queue || []);
+
+    } catch (error) {
+      console.error("❌ Simulation failed:", error);
+    } finally {
+      setLoading(false);
+    }
   };
 
   // 🎯 SCENARIOS
@@ -115,11 +134,11 @@ function App() {
       setTransit(25);
     }
 
-    // 🔥 AUTO RUN
+    // AUTO RUN AFTER SET
     setTimeout(handleRun, 300);
   };
 
-  // 🔥 ALERT STATES
+  // 🚨 ALERT STATES
   const isTrafficAlert = traffic > 80;
   const isEnergyAlert = energy > 80;
   const isEnvAlert = env > 150;
@@ -132,7 +151,7 @@ function App() {
 
       <div className="p-6 flex flex-col gap-4 h-[calc(100vh-88px)]">
 
-        {/* 🔥 SCENARIO BUTTONS */}
+        {/* SCENARIOS */}
         <div className="flex gap-3">
           <button onClick={() => runScenario(1)} className="bg-green-600 px-4 py-2 rounded">
             Normal
@@ -150,7 +169,7 @@ function App() {
           onClick={handleRun}
           className="bg-red-500 hover:bg-red-600 px-6 py-3 rounded-lg font-semibold"
         >
-          Run Simulation
+          {loading ? "Running..." : "Run Simulation"}
         </button>
 
         {/* AGENTS */}
@@ -165,9 +184,6 @@ function App() {
             statusLabel={isTrafficAlert ? "Congestion" : "Normal"}
             chartData={trafficData}
             chartColor="#ef4444"
-            thresholdLabel="Vehicle count"
-            thresholdMin={0}
-            thresholdMax={100}
             thresholdValue={traffic}
             onThresholdChange={setTraffic}
           />
@@ -181,9 +197,6 @@ function App() {
             statusLabel={isEnergyAlert ? "High Load" : "Stable"}
             chartData={energyData}
             chartColor="#f59e0b"
-            thresholdLabel="Energy load"
-            thresholdMin={0}
-            thresholdMax={100}
             thresholdValue={energy}
             onThresholdChange={setEnergy}
           />
@@ -197,9 +210,6 @@ function App() {
             statusLabel={isEnvAlert ? "Pollution" : "Good"}
             chartData={environmentData}
             chartColor="#10b981"
-            thresholdLabel="AQI"
-            thresholdMin={0}
-            thresholdMax={300}
             thresholdValue={env}
             onThresholdChange={setEnv}
           />
@@ -213,16 +223,13 @@ function App() {
             statusLabel={isTransitAlert ? "Delayed" : "On Time"}
             chartData={transitData}
             chartColor="#3b82f6"
-            thresholdLabel="Delay"
-            thresholdMin={0}
-            thresholdMax={60}
             thresholdValue={transit}
             onThresholdChange={setTransit}
           />
 
         </div>
 
-        {/* LOWER */}
+        {/* LOWER SECTION */}
         <div className="grid grid-cols-3 gap-4 flex-1 min-h-0">
           <RequestQueue queue={[...queue].sort((a, b) => b.priority - a.priority)} />
           <SystemLog logs={logs} />

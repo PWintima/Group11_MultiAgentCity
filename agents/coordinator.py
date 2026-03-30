@@ -36,7 +36,8 @@ class ResourceCoordinationAgent(Agent):
         heapq.heappush(self.request_queue, (-request.priority_level, request))
         log.append(f"[Coordinator] Queue size: {len(self.request_queue)}")
 
-        self.process_queue(log)
+        # COMMENT THIS OUT FOR UI DEMO
+        # self.process_queue(log)
 
     def process_queue(self, log):
         while self.request_queue:
